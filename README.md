@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2026.36.31--2-a8391f?style=for-the-badge" alt="Version 2026.36.31-2" />
+  <img src="https://img.shields.io/badge/version-2026.36.32-a8391f?style=for-the-badge" alt="Version 2026.36.32" />
   <img src="https://img.shields.io/badge/React-19-a8391f?style=for-the-badge&logo=react&logoColor=white" alt="React 19" />
   <img src="https://img.shields.io/badge/Vite-7-a8391f?style=for-the-badge&logo=vite&logoColor=white" alt="Vite 7" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-3-a8391f?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS 3" />
@@ -67,7 +67,7 @@ The site is one continuous fade. Scroll position drives a clipper guard, and a f
 | Footer bar   | `@taylorurl/split-rail`                                    |
 | Hosting      | Vercel                                                     |
 | Booking      | TheCut, off-site                                           |
-| Versioning   | CalVer via `scripts/calver.js`                             |
+| Versioning   | CalVer                                                     |
 
 There is no 3D library. The mark is 2D line art and the field is a single quad, so the whole effect is a shader and a few kilobytes of setup rather than a scene graph.
 
@@ -117,8 +117,7 @@ fadedbarbershop-com/
 │   ├── sitemap.xml         every route
 │   └── llms.txt            hours, booking and pages in plain text
 ├── scripts/
-│   ├── prerender.js        writes a static page per route, plus 404.html
-│   └── calver.js           moves the version in package.json and public/release.json
+│   └── prerender.js        writes a static page per route, plus 404.html
 ├── src/
 │   ├── app/
 │   │   ├── components/     FadeField, HairLayer, RazorPointer, Nav, MegaMenu, Dock, Grain, Reveal, and the page furniture
