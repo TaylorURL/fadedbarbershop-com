@@ -1,0 +1,29 @@
+
+!.env.example
+!supabase/migrations/*.sql
+# Database migrations are code, not dumps — they ride along.
+# Secrets and local tooling state — never commit
+*.iml
+*.local
+*.log
+*.p12
+*.pem
+*.pfx
+*.sql
+.DS_Store
+.env
+.env.*
+.fleet/
+.idea/
+.intelligence/
+.junie/
+.vercel
+.vscode/
+INTELLIGENCE.md
+Thumbs.db
+desktop.ini
+dist
+id_ed25519
+id_rsa
+node_modules
+npm-debug.log*

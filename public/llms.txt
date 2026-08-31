@@ -1,0 +1,20 @@
+# Faded Barber Shop
+
+> Barber shop at 929 Main St Suite B, Liberty, TX 77575. Fades, beard work, straight razor shaves, kids cuts. Appointments Tuesday to Thursday on TheCut, walk-ins Friday. Phone (936) 402-4637.
+
+## Pages
+
+- https://faded-barbershop.com/ - fades, beard work and straight razor shaves in Liberty, Texas
+- https://faded-barbershop.com/services - fades, beard work, straight razor shaves, kids and head shaves
+- https://faded-barbershop.com/shop - Samantha Taylor, open on Main Street since 2018
+- https://faded-barbershop.com/reviews - published customer reviews, quoted and attributed
+- https://faded-barbershop.com/visit - hours, address, directions
+- https://faded-barbershop.com/contact - phone, address, booking
+
+## Booking
+Appointments run on TheCut at https://book.thecut.co/FadedBarberShop, $39 for 30 minutes,
+covering the first service. Tuesday to Thursday are appointment days. Friday is the
+walk-in day, first come first served.
+
+## Hours (America/Chicago)
+Tue-Thu 10:00-18:00, Fri 10:00-20:00. Sat, Sun and Mon closed.

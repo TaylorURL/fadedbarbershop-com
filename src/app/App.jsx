@@ -1,0 +1,54 @@
+import { Suspense, lazy } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { ROUTES } from '@constants/shop.js';
+import { ROUTE_TABLE } from '@app/routeTable.js';
+import FadeField from '@components/FadeField.jsx';
+import Grain from '@components/Grain.jsx';
+import HairLayer from '@components/HairLayer.jsx';
+import RazorPointer from '@components/RazorPointer.jsx';
+import RouteChange from '@components/RouteChange.jsx';
+import Nav from '@components/Nav.jsx';
+import Dock from '@components/Dock.jsx';
+import Footer from '@components/Footer.jsx';
+import SplitRail from '@taylorurl/split-rail';
+import RouteFallback from '@components/RouteFallback.jsx';
+import Home from '@views/Home.jsx';
+
+// The home page ships in the first bundle because it is the page almost everyone
+// lands on. The rest arrive on request.
+const LAZY = ROUTE_TABLE.map((r) => ({ path: r.path, Component: lazy(r.load) }));
+
+export default function App({ routes = LAZY }) {
+  return (
+    <>
+      <a
+        href="#main"
+        className="spec sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-bone-50 focus:px-4 focus:py-2 focus:text-[11px] focus:text-pitch-900"
+      >
+        Skip To Content
+      </a>
+
+      <FadeField />
+      <Grain />
+      <HairLayer />
+      <RazorPointer />
+      <RouteChange />
+      <Nav />
+
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path={ROUTES.home} element={<Home />} />
+          {routes.map(({ path, Component }) => (
+            <Route key={path} path={path} element={<Component />} />
+          ))}
+        </Routes>
+      </Suspense>
+
+      <Footer>
+        <SplitRail version={__BUILD_VERSION__} />
+      </Footer>
+      <div className="h-[68px] lg:hidden" />
+      <Dock />
+    </>
+  );
+}

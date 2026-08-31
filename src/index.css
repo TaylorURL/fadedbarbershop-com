@@ -1,0 +1,225 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('./assets/fonts/archivo-var.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Big Shoulders Display';
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url('./assets/fonts/big-shoulders-display-var.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/space-mono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./assets/fonts/space-mono-700.woff2') format('woff2');
+}
+
+/* Metric-matched fallbacks: the swap to the web font does not reflow the line
+   it was standing in for. */
+@font-face {
+  font-family: 'Archivo Fallback';
+  font-display: swap;
+  src: local('Helvetica Neue'), local('Arial');
+  size-adjust: 97%;
+  ascent-override: 92%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Big Shoulders Fallback';
+  font-display: swap;
+  src: local('Arial Narrow'), local('Helvetica Neue'), local('Arial');
+  size-adjust: 62%;
+  ascent-override: 145%;
+  descent-override: 32%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Space Mono Fallback';
+  font-display: swap;
+  src: local('Menlo'), local('Consolas'), local('Courier New');
+  size-adjust: 100%;
+  ascent-override: 105%;
+  descent-override: 27%;
+  line-gap-override: 0%;
+}
+
+/* Registered so the clipper pass across a heading can be a transition rather
+   than a keyframe animation. */
+@property --shave {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  :root {
+    --width-shell: 1360px;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Clipping the x axis on html or body stops the page painting past the first
+     viewport behind the fixed shader canvas, so neither carries an overflow
+     rule and no section is allowed to overflow horizontally instead. */
+  body {
+    @apply bg-pitch-900 text-bone-100 antialiased;
+    font-family: Archivo, 'Archivo Fallback', system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: 'Big Shoulders Display', 'Big Shoulders Fallback', Impact, sans-serif;
+    text-wrap: balance;
+  }
+
+  p,
+  blockquote {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.rust.ember');
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: theme('colors.rust.DEFAULT');
+    color: theme('colors.bone.50');
+  }
+
+  a,
+  button,
+  [role='button'],
+  summary,
+  label[for] {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: theme('colors.rust.DEFAULT / 25%');
+    transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  a:active,
+  button:active,
+  [role='button']:active {
+    transform: scale(0.985);
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  /* Button and tab text is a control label rather than prose, so a drag across
+     one selects nothing. Links carrying the phone number stay selectable. */
+  button,
+  [role='button'],
+  nav a {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Display type is set in condensed caps at clamp sizes, so one long compound
+     word is wider than the phone it is being read on unless it may break. */
+  h1,
+  h2,
+  h3 {
+    @apply font-head font-[900] uppercase leading-[0.85] tracking-[-0.01em] text-bone-50;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+}
+
+@layer components {
+  /* Meta type: hours, guard numbers, labels. Monospace keeps columns of figures
+     from shifting as the live status rewrites them. */
+  .spec {
+    @apply uppercase tracking-spec;
+    font-family: 'Space Mono', 'Space Mono Fallback', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kicker {
+    @apply text-[10px] uppercase tracking-label text-bone-300;
+    font-family: 'Space Mono', 'Space Mono Fallback', ui-monospace, monospace;
+  }
+
+  .shell {
+    @apply mx-auto w-full px-6 sm:px-10;
+    max-width: var(--width-shell);
+  }
+
+  .hairline {
+    @apply border-bone-100/12;
+  }
+
+  .shave-in {
+    --shave: 0;
+    -webkit-mask-image: linear-gradient(
+      95deg,
+      #000 calc(var(--shave) * 118%),
+      transparent calc(var(--shave) * 118% + 9%)
+    );
+    mask-image: linear-gradient(
+      95deg,
+      #000 calc(var(--shave) * 118%),
+      transparent calc(var(--shave) * 118% + 9%)
+    );
+    transition: --shave 1150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .shave-in[data-shown='true'] {
+    --shave: 1;
+  }
+
+  /* Sections below the fold cost no style or layout until they are scrolled to.
+     The intrinsic size holds the scrollbar steady so nothing shifts. */
+  main > section:not(:first-child) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
