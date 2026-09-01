@@ -1,7 +1,8 @@
 {
   "name": "fadedbarbershop-com",
   "private": true,
-  "version": "2026.36.32",
+  "license": "UNLICENSED",
+  "version": "2026.36.33",
   "type": "module",
   "engines": {
     "node": ">=22"
