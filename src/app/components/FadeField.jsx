@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { field } from '@app/lib/field.js';
+import drawsInSoftware from '@app/lib/gpu.js';
 
 // Resolution of the interactive shave buffer. Coarse on purpose: it is sampled
 // with bilinear filtering, so a low grid reads as a soft clipper path and costs
@@ -154,25 +155,19 @@ function compile(gl, type, src) {
   return sh;
 }
 
-// A renderer with no GPU behind it names itself: Chrome's SwiftShader, Mesa's
-// llvmpipe, Apple's software fallback. Any of them rasterises a full-screen
-// fragment shader on the same thread the page is laid out on.
-const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render/i;
-
-function drawsInSoftware(gl) {
-  const info = gl.getExtension('WEBGL_debug_renderer_info');
-  const renderer = info
-    ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL)
-    : gl.getParameter(gl.RENDERER);
-  return SOFTWARE_RENDERER.test(String(renderer || ''));
-}
-
 export default function FadeField({ markSelector = '[data-fade-mark]' }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    // Without a GPU every frame of the field is drawn in software, on the
+    // thread the page needs for everything else, and a frame then costs more
+    // than the page paints in the same time - including the first one, which
+    // the whole document is waiting behind. Such a machine keeps the flat
+    // background, which is the tier a machine with no WebGL already gets, so
+    // neither the context nor the program is ever built.
+    if (drawsInSoftware()) return;
 
     const gl = canvas.getContext('webgl', {
       alpha: false,
@@ -182,11 +177,6 @@ export default function FadeField({ markSelector = '[data-fade-mark]' }) {
     });
     // Without WebGL the page keeps its flat background, which is the low tier.
     if (!gl) return;
-    // Without a GPU every frame of the field is drawn in software, on the
-    // thread the page needs for everything else, and a frame then costs more
-    // than the page paints in the same time. Such a machine gets the one
-    // still frame a reduced-motion setting gets, and the same still pointer.
-    const software = drawsInSoftware(gl);
 
     let program;
     try {
@@ -327,7 +317,7 @@ export default function FadeField({ markSelector = '[data-fade-mark]' }) {
     };
 
     const onPointer = (e) => {
-      if (reduced.matches || software) return;
+      if (reduced.matches) return;
       const cx = e.clientX;
       const cy = e.clientY;
       if (px >= 0) {
@@ -432,7 +422,7 @@ export default function FadeField({ markSelector = '[data-fade-mark]' }) {
     };
 
     const start = () => {
-      if (reduced.matches || software) {
+      if (reduced.matches) {
         running = false;
         frame(0, false);
         return;

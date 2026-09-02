@@ -26,6 +26,7 @@ export default function Hero() {
           alt=""
           width="734"
           height="693"
+          fetchPriority="high"
           className="h-auto w-full drop-shadow-[0_18px_60px_rgba(0,0,0,0.9)]"
         />
       </div>
