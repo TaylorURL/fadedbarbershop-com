@@ -154,6 +154,19 @@ function compile(gl, type, src) {
   return sh;
 }
 
+// A renderer with no GPU behind it names itself: Chrome's SwiftShader, Mesa's
+// llvmpipe, Apple's software fallback. Any of them rasterises a full-screen
+// fragment shader on the same thread the page is laid out on.
+const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render/i;
+
+function drawsInSoftware(gl) {
+  const info = gl.getExtension('WEBGL_debug_renderer_info');
+  const renderer = info
+    ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL)
+    : gl.getParameter(gl.RENDERER);
+  return SOFTWARE_RENDERER.test(String(renderer || ''));
+}
+
 export default function FadeField({ markSelector = '[data-fade-mark]' }) {
   const canvasRef = useRef(null);
 
@@ -169,6 +182,11 @@ export default function FadeField({ markSelector = '[data-fade-mark]' }) {
     });
     // Without WebGL the page keeps its flat background, which is the low tier.
     if (!gl) return;
+    // Without a GPU every frame of the field is drawn in software, on the
+    // thread the page needs for everything else, and a frame then costs more
+    // than the page paints in the same time. Such a machine gets the one
+    // still frame a reduced-motion setting gets, and the same still pointer.
+    const software = drawsInSoftware(gl);
 
     let program;
     try {
@@ -309,7 +327,7 @@ export default function FadeField({ markSelector = '[data-fade-mark]' }) {
     };
 
     const onPointer = (e) => {
-      if (reduced.matches) return;
+      if (reduced.matches || software) return;
       const cx = e.clientX;
       const cy = e.clientY;
       if (px >= 0) {
@@ -414,7 +432,7 @@ export default function FadeField({ markSelector = '[data-fade-mark]' }) {
     };
 
     const start = () => {
-      if (reduced.matches) {
+      if (reduced.matches || software) {
         running = false;
         frame(0, false);
         return;
