@@ -57,18 +57,100 @@ const patchPreloadHrefs = (html) =>
     },
   );
 
+// Those same preloads are emitted into the body, because a string render has no
+// head to hoist them into, and there they are worth nothing: the parser reaches
+// them at the same moment it reaches the images they describe. Lifted into the
+// head they are found before the markup is, which is the whole point of asking
+// early, and the root is left holding only what the client renders, so the
+// browser and the build agree on the tree being adopted.
+const PRELOAD_TAG = /<link\s[^>]*rel="preload"[^>]*as="image"[^>]*>/gi;
+const liftPreloads = (body) => {
+  const tags = body.match(PRELOAD_TAG) || [];
+  return {
+    body: body.replace(PRELOAD_TAG, ''),
+    preloads: tags.map((tag) => `    ${tag.replace(/\/>$/, ' />')}`).join('\n'),
+  };
+};
+
+/*
+ * Runs the bundle after the first frame rather than before it.
+ *
+ * Every route here is a finished document, so its first frame owes the bundle
+ * nothing. A module script is deferred, which only means it waits for the
+ * parser: it runs the moment parsing ends, and on a slow phone that moment
+ * arrives before the browser has found a frame to paint the document in. The
+ * page then sits blank while the bundle adopts markup nobody has been shown,
+ * and the whole download is charged to the first paint.
+ *
+ * The entry keeps its early fetch as a module preload and loses its script tag.
+ * An inline module in its place asks for the bundle one frame after the first,
+ * which is the first frame the document can have been painted in and the
+ * earliest the bundle can no longer hold it back. The preload asks at a low
+ * priority, because the two faces and the mark are what the paint waits on and
+ * the entry is what nothing waits on.
+ */
+const paintFirst = (html) =>
+  html.replace(
+    /<script type="module" crossorigin src="([^"]+)"><\/script>/,
+    (tag, src) =>
+      `<link rel="modulepreload" crossorigin fetchpriority="low" href="${src}" />` +
+      `<script type="module">requestAnimationFrame(() => requestAnimationFrame(() => import(${JSON.stringify(src)})))</script>`,
+  );
+
+/*
+ * Writes the stylesheet into the document instead of linking to it.
+ *
+ * A browser will not draw a page whose stylesheet is still in flight, and on a
+ * phone that link is a round trip and a download before any of the markup after
+ * it counts - which Lighthouse prices at most of half a second. The whole sheet
+ * is seven kilobytes over the wire, less than the round trip that fetches it,
+ * so the document carries it and the first paint waits on nothing but itself.
+ *
+ * The sheet is taken whole rather than reduced to what the first screen needs.
+ * A page holding only part of its rules has a window between its first paint
+ * and the rest landing, and everything the build could not see standing in that
+ * window - a heading that shaves itself in, a panel that opens - is dressed
+ * wrongly for as long as it lasts.
+ */
+const sheetFile = readdirSync(join(DIST, 'assets')).find((f) => f.endsWith('.css'));
+const sheet = sheetFile ? readFileSync(join(DIST, 'assets', sheetFile), 'utf8') : null;
+const inlineSheet = (html) =>
+  sheet
+    ? html.replace(
+        /<link rel="stylesheet"[^>]*href="\/assets\/[^"]+\.css"[^>]*>/,
+        () => `<style>${sheet}</style>`,
+      )
+    : html;
+
 const swap = (html, pattern, replacement) =>
   pattern.test(html) ? html.replace(pattern, replacement) : html;
+
+// The static hero in the shell is the no-JS first paint, and this replaces it
+// with the route's own markup. #root is the last element in body, so the greedy
+// match ends at its own closing tag rather than a nested one.
+//
+// The route it was rendered for is stamped as it goes. A document holding its
+// own first screen is adopted by the bundle rather than drawn again, but only
+// where the document and the router agree on which page this is. A rewrite can
+// answer one address with another's document, and the markup would then be the
+// home page while the router draws the not-found one: correcting a tree costs a
+// rebuild and a reported error rather than the paint the stamp was meant to
+// save. The 404 stands in for whatever was asked for and so names no route, and
+// the dev server serves the shell untouched and carries no stamp at all.
+const ROOT = /<div id="root">[\s\S]*(<\/div>\s*<\/body>)/;
+const intoRoot = (body, route) =>
+  shell.replace(
+    ROOT,
+    (_whole, tail) =>
+      `<div id="root"${route ? ` data-prerendered="${route}"` : ''}>${body}${tail}`,
+  );
 
 for (const route of Object.keys(META)) {
   const meta = META[route];
   const href = `${ORIGIN}${route}`;
-  // The static hero in the shell is the no-JS first paint, and this replaces it
-  // with the route's own markup. #root is the last element in body, so the
-  // greedy match ends at its own closing tag rather than a nested one.
-  let out = shell.replace(/(<div id="root">)[\s\S]*(<\/div>\s*<\/body>)/, `$1${render(route)}$2`);
-  out = patchPreloadHrefs(out);
-  out = out.replace('<!--FONT-PRELOADS-->', preloadFonts);
+  const { body, preloads: images } = liftPreloads(patchPreloadHrefs(render(route)));
+  let out = intoRoot(body, route);
+  out = out.replace('<!--FONT-PRELOADS-->', [preloadFonts, images].filter(Boolean).join('\n'));
   out = swap(out, /<title>[\s\S]*?<\/title>/, `<title>${meta.title}</title>`);
   out = swap(
     out,
@@ -100,6 +182,8 @@ for (const route of Object.keys(META)) {
     .join('\n');
   if (preloads) out = out.replace('</head>', `${preloads}\n  </head>`);
 
+  out = inlineSheet(paintFirst(out));
+
   const file = route === '/' ? join(DIST, 'index.html') : join(DIST, route, 'index.html');
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, out);
@@ -116,12 +200,14 @@ for (const route of Object.keys(META)) {
 // Vercel serves dist/404.html for anything it cannot match, which keeps the
 // status honest instead of answering 200 from the SPA fallback.
 {
-  const body = render('/this-route-does-not-exist');
-  let out = shell.replace(/(<div id="root">)[\s\S]*(<\/div>\s*<\/body>)/, `$1${body}$2`);
-  out = patchPreloadHrefs(out);
+  const { body, preloads: images } = liftPreloads(
+    patchPreloadHrefs(render('/this-route-does-not-exist')),
+  );
+  let out = intoRoot(body, null);
   out = out.replace(/<title>[\s\S]*?<\/title>/, '<title>Not Found | Faded Barber Shop</title>');
   out = out.replace(/<meta name="robots"[^>]*\/>/, '<meta name="robots" content="noindex" />');
-  out = out.replace('<!--FONT-PRELOADS-->', preloadFonts);
+  out = out.replace('<!--FONT-PRELOADS-->', [preloadFonts, images].filter(Boolean).join('\n'));
+  out = inlineSheet(paintFirst(out));
   writeFileSync(join(DIST, '404.html'), out);
   console.log(`404        -> dist/404.html                 ${(out.length / 1024).toFixed(1)} KB`);
 }
