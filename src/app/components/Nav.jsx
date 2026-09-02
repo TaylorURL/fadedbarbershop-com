@@ -138,10 +138,14 @@ export default function Nav() {
         </div>
       </header>
 
+      {/* The drawer stays in the document while it is closed, so that the
+          staggered reveal has something to run from. Marking it inert takes its
+          links back out of the tab order for as long as they are out of sight. */}
       <div
         id="menu"
         className={`fixed inset-0 z-30 lg:hidden ${open ? '' : 'pointer-events-none'}`}
         aria-hidden={open ? undefined : 'true'}
+        inert={!open}
       >
         <button
           type="button"
