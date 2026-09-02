@@ -11,6 +11,9 @@
   Fades, beard work and straight razor shaves at 929 Main St, Suite B, Liberty, TX 77575.<br />
   Live at <a href="https://faded-barbershop.com">faded-barbershop.com</a>. Call (936) 402-4637.
 </p>
+<p align="center">
+  <sub>Published for reading. Proprietary — see <a href="LICENSE.md">LICENSE.md</a>. Outside contributions are not accepted.</sub>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-2026.36.34-a8391f?style=for-the-badge" alt="Version 2026.36.34" />
@@ -94,7 +97,6 @@ Hours, services, prices, phone number and booking URL all live in `src/app/const
 | `npm run lint`         | Lint with ESLint.                                                |
 | `npm run format`       | Format `src/**` with Prettier.                                   |
 | `npm run format:check` | Check formatting without writing.                                |
-| `npm run version:bump` | Move CalVer in `package.json` and `public/release.json`.         |
 
 ## How it works
 
@@ -111,6 +113,8 @@ Hours, services, prices, phone number and booking URL all live in `src/app/const
 
 ```
 fadedbarbershop-com/
+├── api/
+│   └── version.js          the commit the running deployment was built from
 ├── public/
 │   ├── brand/              logo lockup, skull, wordmark, and the mask the shader reads (WebP)
 │   ├── robots.txt          crawler rules, including the AI readers
