@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { field } from '@app/lib/field.js';
+import drawsInSoftware from '@app/lib/gpu.js';
 import { drawStrand, makeStrand, stepStrand } from '@app/lib/hair.js';
 
 const MAX = 260;
@@ -11,6 +12,11 @@ export default function HairLayer() {
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Two full-window canvases, one of them blurred, redrawn every frame. With
+    // no GPU behind them that is the whole viewport rasterised on the main
+    // thread for as long as anything is falling, so a machine drawing in
+    // software gets the still page a reduced-motion setting gets.
+    if (drawsInSoftware()) return;
     const far = farRef.current;
     const near = nearRef.current;
     if (!far || !near) return;
