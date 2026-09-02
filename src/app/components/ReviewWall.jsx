@@ -14,7 +14,7 @@ export default function ReviewWall({ limit = REVIEWS.length }) {
         >
           {/* The accent arrives as a razored line along the top edge. */}
           <span className="absolute inset-x-0 top-0 h-[2px] w-0 bg-rust-ember transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-          <div className="flex gap-1 text-rust-ember" aria-label="Five stars">
+          <div className="flex gap-1 text-rust-ember" role="img" aria-label="Five stars">
             {[0, 1, 2, 3, 4].map((s) => (
               <Star key={s} className="h-3 w-3" strokeWidth={0} fill="currentColor" />
             ))}
