@@ -2,7 +2,6 @@
 // frame, so a component can drive the field without re-rendering anything.
 export const field = {
   wipe: 0,
-  burst: 0,
 };
 
 let wipeRaf = 0;

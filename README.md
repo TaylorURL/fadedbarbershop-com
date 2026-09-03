@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2026.36.36-a8391f?style=for-the-badge" alt="Version 2026.36.36" />
+  <img src="https://img.shields.io/badge/version-2026.36.37-a8391f?style=for-the-badge" alt="Version 2026.36.37" />
   <img src="https://img.shields.io/badge/React-19-a8391f?style=for-the-badge&logo=react&logoColor=white" alt="React 19" />
   <img src="https://img.shields.io/badge/Vite-7-a8391f?style=for-the-badge&logo=vite&logoColor=white" alt="Vite 7" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-3-a8391f?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS 3" />
@@ -127,7 +127,7 @@ fadedbarbershop-com/
 │   │   ├── components/     FadeField, HairLayer, RazorPointer, Nav, MegaMenu, Dock, Grain, Reveal, and the page furniture
 │   │   ├── constants/      shop.js for hours, services and contact; meta.js, reviews.js, gallery.js
 │   │   ├── hooks/          useTodayStatus for the live open state, useInView for the reveals
-│   │   ├── lib/            field.js, the state the shader reads each frame; hair.js, the strand model
+│   │   ├── lib/            field.js, the state the shader reads each frame; hair.js, the strand model; gpu.js, the software-renderer check
 │   │   ├── sections/       Hero
 │   │   ├── views/          one file per route
 │   │   └── routeTable.js   one route list, wrapped in lazy() by the client and awaited by the server build
