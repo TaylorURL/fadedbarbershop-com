@@ -1,11 +1,9 @@
 export const SHOP = {
   name: 'Faded Barber Shop',
-  shortName: 'Faded',
   tagline: 'Walkins Welcome',
   town: 'Liberty, Texas',
   established: 2018,
   barber: 'Samantha Taylor',
-  barberShort: 'Samantha',
   rule: 'Leave your feelings at the door',
   phone: '(936) 402-4637',
   phoneHref: 'tel:+19364024637',
@@ -21,19 +19,16 @@ export const SHOP = {
 export const SOCIALS = [
   {
     label: 'Facebook',
-    handle: 'FadedBarberLibertytx',
     icon: 'facebook',
     href: 'https://www.facebook.com/FadedBarberLibertytx/',
   },
   {
     label: 'TheCut',
-    handle: 'FadedBarberShop',
     icon: 'scissors',
     href: 'https://book.thecut.co/FadedBarberShop',
   },
   {
     label: 'Google',
-    handle: 'Liberty, TX',
     icon: 'star',
     href: 'https://www.google.com/maps/search/?api=1&query=Faded+Barber+Shop+Liberty+TX',
   },

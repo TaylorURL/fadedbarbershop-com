@@ -127,7 +127,7 @@ fadedbarbershop-com/
 │   │   ├── components/     FadeField, HairLayer, RazorPointer, Nav, MegaMenu, Dock, Grain, Reveal, and the page furniture
 │   │   ├── constants/      shop.js for hours, services and contact; meta.js, reviews.js, gallery.js
 │   │   ├── hooks/          useTodayStatus for the live open state, useInView for the reveals
-│   │   ├── lib/            field.js, the state the shader reads each frame; hair.js, the strand model
+│   │   ├── lib/            field.js, the state the shader reads each frame; hair.js, the strand model; gpu.js, the software-renderer check
 │   │   ├── sections/       Hero
 │   │   ├── views/          one file per route
 │   │   └── routeTable.js   one route list, wrapped in lazy() by the client and awaited by the server build
