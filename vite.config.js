@@ -5,8 +5,9 @@ import { readFileSync } from 'node:fs';
 
 const { version } = JSON.parse(readFileSync('./package.json', 'utf8'));
 
-// The server build only needs the module graph; copying public/ into dist-ssr
-// duplicates every asset and puts build output in front of every file audit.
+// The server build only needs the module graph; copying public/ into
+// node_modules/.faded-ssr duplicates every asset and puts build output in front
+// of every file audit.
 export default defineConfig(({ isSsrBuild }) => ({
   plugins: [react()],
   build: {
@@ -23,7 +24,6 @@ export default defineConfig(({ isSsrBuild }) => ({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@app': fileURLToPath(new URL('./src/app', import.meta.url)),
       '@components': fileURLToPath(new URL('./src/app/components', import.meta.url)),
       '@sections': fileURLToPath(new URL('./src/app/sections', import.meta.url)),
