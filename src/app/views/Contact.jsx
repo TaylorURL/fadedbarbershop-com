@@ -1,10 +1,10 @@
 import { Phone, MapPin } from 'lucide-react';
 import { SHOP, SOCIALS, DIRECTIONS_HREF } from '@constants/shop.js';
-import { SOCIAL_ICONS } from '@components/socialIcons.js';
-import PageHead from '@components/PageHead.jsx';
-import StatusPill from '@components/StatusPill.jsx';
-import BookLink from '@components/BookLink.jsx';
-import Reveal from '@components/Reveal.jsx';
+import { SOCIAL_ICONS } from '@components/ui/socialIcons.js';
+import PageHead from '@components/layout/PageHead.jsx';
+import StatusPill from '@components/ui/StatusPill.jsx';
+import BookLink from '@components/ui/BookLink.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 export default function Contact() {
   return (

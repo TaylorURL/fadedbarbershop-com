@@ -1,5 +1,5 @@
-import ShaveHeading from '@components/ShaveHeading.jsx';
-import Reveal from '@components/Reveal.jsx';
+import ShaveHeading from '@components/ui/ShaveHeading.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 export default function PageHead({ kicker, title, lead, guard }) {
   return (

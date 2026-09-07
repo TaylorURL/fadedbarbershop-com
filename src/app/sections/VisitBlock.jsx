@@ -1,8 +1,8 @@
 import { Phone, MapPin } from 'lucide-react';
 import { SHOP, HOURS, DIRECTIONS_HREF } from '@constants/shop.js';
 import useTodayStatus, { formatTime } from '@hooks/useTodayStatus.js';
-import BookLink from '@components/BookLink.jsx';
-import Reveal from '@components/Reveal.jsx';
+import BookLink from '@components/ui/BookLink.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 export default function VisitBlock() {
   const status = useTodayStatus();

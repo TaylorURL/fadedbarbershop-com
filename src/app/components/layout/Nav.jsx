@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { NAV, ROUTES, SHOP } from '@constants/shop.js';
-import BookLink from '@components/BookLink.jsx';
-import MegaMenu from '@components/MegaMenu.jsx';
+import BookLink from '@components/ui/BookLink.jsx';
+import MegaMenu from '@components/layout/MegaMenu.jsx';
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);

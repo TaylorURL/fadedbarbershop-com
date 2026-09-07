@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ROUTES, SHOP } from '@constants/shop.js';
-import BookLink from '@components/BookLink.jsx';
+import BookLink from '@components/ui/BookLink.jsx';
 
 export default function NotFound() {
   return (

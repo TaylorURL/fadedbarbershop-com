@@ -124,11 +124,14 @@ fadedbarbershop-com/
 │   └── prerender.js        writes a static page per route, plus 404.html
 ├── src/
 │   ├── app/
-│   │   ├── components/     FadeField, HairLayer, RazorPointer, Nav, MegaMenu, Dock, Grain, Reveal, and the page furniture
+│   │   ├── components/
+│   │   │   ├── effects/    FadeField, HairLayer, Grain, RazorPointer — the ambient layers App mounts once
+│   │   │   ├── layout/     Nav, MegaMenu, Dock, Footer, PageHead, and the two routing components
+│   │   │   └── ui/         BookLink, Reveal, ShaveHeading, StatusPill, FadeSpecimen, socialIcons
 │   │   ├── constants/      shop.js for hours, services and contact; meta.js, reviews.js, gallery.js
 │   │   ├── hooks/          useTodayStatus for the live open state, useInView for the reveals
 │   │   ├── lib/            field.js, the state the shader reads each frame; hair.js, the strand model; gpu.js, the software-renderer check
-│   │   ├── sections/       Hero
+│   │   ├── sections/       Hero, Rule, ServiceList, Gallery, ReviewWall, Figures, VisitBlock
 │   │   ├── views/          one file per route
 │   │   └── routeTable.js   one route list, wrapped in lazy() by the client and awaited by the server build
 │   ├── assets/fonts/       Archivo and Big Shoulders variable, Space Mono at two weights

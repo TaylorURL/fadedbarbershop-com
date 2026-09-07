@@ -1,5 +1,5 @@
 import { SERVICES, SHOP } from '@constants/shop.js';
-import Reveal from '@components/Reveal.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 export default function ServiceList({ detailed = false }) {
   return (
