@@ -1,8 +1,8 @@
 import { SHOP, SOCIALS } from '@constants/shop.js';
-import PageHead from '@components/PageHead.jsx';
-import VisitBlock from '@components/VisitBlock.jsx';
-import StatusPill from '@components/StatusPill.jsx';
-import Reveal from '@components/Reveal.jsx';
+import PageHead from '@components/layout/PageHead.jsx';
+import VisitBlock from '@sections/VisitBlock.jsx';
+import StatusPill from '@components/ui/StatusPill.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 export default function Visit() {
   return (

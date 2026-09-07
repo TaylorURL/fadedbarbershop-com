@@ -1,6 +1,6 @@
 import { Star } from 'lucide-react';
 import { REVIEWS, GOOGLE_HREF } from '@constants/reviews.js';
-import Reveal from '@components/Reveal.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 export default function ReviewWall({ limit = REVIEWS.length }) {
   return (

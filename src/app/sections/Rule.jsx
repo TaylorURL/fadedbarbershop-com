@@ -1,6 +1,6 @@
 import { SHOP } from '@constants/shop.js';
-import ShaveHeading from '@components/ShaveHeading.jsx';
-import Reveal from '@components/Reveal.jsx';
+import ShaveHeading from '@components/ui/ShaveHeading.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 // Samantha's line. It runs at full width because in the shop it is a sign, not
 // a sentence.

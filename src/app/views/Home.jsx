@@ -2,14 +2,14 @@ import { Link } from 'react-router-dom';
 import { ROUTES } from '@constants/shop.js';
 import { TRAVELS } from '@constants/reviews.js';
 import Hero from '@sections/Hero.jsx';
-import Rule from '@components/Rule.jsx';
-import ServiceList from '@components/ServiceList.jsx';
-import ReviewWall from '@components/ReviewWall.jsx';
-import Gallery from '@components/Gallery.jsx';
-import Figures from '@components/Figures.jsx';
-import VisitBlock from '@components/VisitBlock.jsx';
-import ShaveHeading from '@components/ShaveHeading.jsx';
-import Reveal from '@components/Reveal.jsx';
+import Rule from '@sections/Rule.jsx';
+import ServiceList from '@sections/ServiceList.jsx';
+import ReviewWall from '@sections/ReviewWall.jsx';
+import Gallery from '@sections/Gallery.jsx';
+import Figures from '@sections/Figures.jsx';
+import VisitBlock from '@sections/VisitBlock.jsx';
+import ShaveHeading from '@components/ui/ShaveHeading.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 function More({ to, children }) {
   return (

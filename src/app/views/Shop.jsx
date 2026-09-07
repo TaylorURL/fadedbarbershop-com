@@ -1,10 +1,10 @@
 import { SHOP } from '@constants/shop.js';
 import { TRAVELS } from '@constants/reviews.js';
-import PageHead from '@components/PageHead.jsx';
-import Rule from '@components/Rule.jsx';
-import Figures from '@components/Figures.jsx';
-import Reveal from '@components/Reveal.jsx';
-import BookLink from '@components/BookLink.jsx';
+import PageHead from '@components/layout/PageHead.jsx';
+import Rule from '@sections/Rule.jsx';
+import Figures from '@sections/Figures.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
+import BookLink from '@components/ui/BookLink.jsx';
 
 export default function Shop() {
   return (

@@ -2,16 +2,16 @@ import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ROUTES } from '@constants/shop.js';
 import { ROUTE_TABLE } from '@app/routeTable.js';
-import FadeField from '@components/FadeField.jsx';
-import Grain from '@components/Grain.jsx';
-import HairLayer from '@components/HairLayer.jsx';
-import RazorPointer from '@components/RazorPointer.jsx';
-import RouteChange from '@components/RouteChange.jsx';
-import Nav from '@components/Nav.jsx';
-import Dock from '@components/Dock.jsx';
-import Footer from '@components/Footer.jsx';
+import FadeField from '@components/effects/FadeField.jsx';
+import Grain from '@components/effects/Grain.jsx';
+import HairLayer from '@components/effects/HairLayer.jsx';
+import RazorPointer from '@components/effects/RazorPointer.jsx';
+import RouteChange from '@components/layout/RouteChange.jsx';
+import Nav from '@components/layout/Nav.jsx';
+import Dock from '@components/layout/Dock.jsx';
+import Footer from '@components/layout/Footer.jsx';
 import SplitRail from '@taylorurl/split-rail';
-import RouteFallback from '@components/RouteFallback.jsx';
+import RouteFallback from '@components/layout/RouteFallback.jsx';
 import Home from '@views/Home.jsx';
 
 // The home page ships in the first bundle because it is the page almost everyone
