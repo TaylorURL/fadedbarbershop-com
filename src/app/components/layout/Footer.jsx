@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { SOCIAL_ICONS } from '@components/socialIcons.js';
+import { SOCIAL_ICONS } from '@components/ui/socialIcons.js';
 import { SHOP, SOCIALS, NAV, HOURS, ROUTES, DIRECTIONS_HREF } from '@constants/shop.js';
 import { formatTime } from '@hooks/useTodayStatus.js';
 

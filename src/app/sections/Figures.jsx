@@ -1,5 +1,5 @@
 import { RATINGS } from '@constants/reviews.js';
-import Reveal from '@components/Reveal.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 // The reveal wraps the whole grid: animating each cell leaves the container's
 // own background showing as a bare slab until the cells arrive.

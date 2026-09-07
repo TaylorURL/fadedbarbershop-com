@@ -1,10 +1,10 @@
 import { SHOP } from '@constants/shop.js';
-import PageHead from '@components/PageHead.jsx';
-import ServiceList from '@components/ServiceList.jsx';
-import Gallery from '@components/Gallery.jsx';
-import ShaveHeading from '@components/ShaveHeading.jsx';
-import BookLink from '@components/BookLink.jsx';
-import Reveal from '@components/Reveal.jsx';
+import PageHead from '@components/layout/PageHead.jsx';
+import ServiceList from '@sections/ServiceList.jsx';
+import Gallery from '@sections/Gallery.jsx';
+import ShaveHeading from '@components/ui/ShaveHeading.jsx';
+import BookLink from '@components/ui/BookLink.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 export default function Services() {
   return (

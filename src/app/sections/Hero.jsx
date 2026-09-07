@@ -1,6 +1,6 @@
 import { SHOP } from '@constants/shop.js';
-import BookLink from '@components/BookLink.jsx';
-import StatusPill from '@components/StatusPill.jsx';
+import BookLink from '@components/ui/BookLink.jsx';
+import StatusPill from '@components/ui/StatusPill.jsx';
 
 // Sized in vh rather than vw so the whole lockup and both calls to action stay
 // above the fold on a short laptop as well as a tall phone.

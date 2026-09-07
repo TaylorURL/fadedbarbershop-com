@@ -1,6 +1,6 @@
 import { GALLERY } from '@constants/gallery.js';
-import FadeSpecimen from '@components/FadeSpecimen.jsx';
-import Reveal from '@components/Reveal.jsx';
+import FadeSpecimen from '@components/ui/FadeSpecimen.jsx';
+import Reveal from '@components/ui/Reveal.jsx';
 
 export default function Gallery({ limit = GALLERY.length }) {
   return (
