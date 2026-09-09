@@ -88,13 +88,54 @@ const liftPreloads = (body) => {
  * earliest the bundle can no longer hold it back. The preload asks at a low
  * priority, because the two faces and the mark are what the paint waits on and
  * the entry is what nothing waits on.
+ *
+ * The one thing it must not do is give up. The entry's filename carries a
+ * content hash, so it belongs to the build that wrote it and the next deploy
+ * takes the old one away: a document held open across a deploy, or handed back
+ * out of a cache, names a bundle the origin no longer has, and a request
+ * dropped on a thin connection reads the same from here. Left alone the page
+ * then keeps the markup it was served and quietly never wakes up - it reads
+ * fine and every menu, dial and booking link on it is dead.
+ *
+ * Asking a second time is not worth the request, and asking under a query is
+ * worse. A module that failed to fetch is recorded as failed in the module map
+ * and every later import of that name is answered from there without touching
+ * the network, and the preload above has usually failed first, so the import
+ * never reaches the wire at all. A query the static host ignores does reach it,
+ * being a name the map has not seen - and it buys a second copy of the entry
+ * rather than the one every route chunk statically imports, so the routes go on
+ * asking for the name that is missing and fail one at a time behind a page that
+ * looks like it started.
+ *
+ * So the answer is the new document, which brings the current names down with
+ * it: one reload per visit, on the flag the route chunks share and never give
+ * back, so a build that has moved on stops rather than loops.
  */
+const boot = (src) => `
+      const flag = 'faded:chunk-reload';
+      const start = async () => {
+        try {
+          await import(${JSON.stringify(src)});
+          return;
+        } catch (ignored) { /* the bundle is not there to be had */ }
+        // A browser that refuses storage cannot be asked whether it has already
+        // reloaded, and a reload nothing remembers repeats forever, so an
+        // unreadable flag reads as spent.
+        let spent = true;
+        try {
+          spent = sessionStorage.getItem(flag) === '1';
+          sessionStorage.setItem(flag, '1');
+        } catch (ignored) { /* spent stays true */ }
+        if (!spent) location.reload();
+      };
+      requestAnimationFrame(() => requestAnimationFrame(start));
+    `;
 const paintFirst = (html) =>
   html.replace(
     /<script type="module" crossorigin src="([^"]+)"><\/script>/,
     (tag, src) =>
       `<link rel="modulepreload" crossorigin fetchpriority="low" href="${src}" />` +
-      `<script type="module">requestAnimationFrame(() => requestAnimationFrame(() => import(${JSON.stringify(src)})))</script>`,
+      `<script type="module">${boot(src)}</script>`,
   );
 
 /*
