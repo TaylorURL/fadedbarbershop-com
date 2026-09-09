@@ -12,11 +12,17 @@ import Dock from '@components/layout/Dock.jsx';
 import Footer from '@components/layout/Footer.jsx';
 import SplitRail from '@taylorurl/split-rail';
 import RouteFallback from '@components/layout/RouteFallback.jsx';
+import RouteBoundary from '@components/layout/RouteBoundary.jsx';
+import { loadChunk } from '@app/lib/chunk.js';
 import Home from '@views/Home.jsx';
 
 // The home page ships in the first bundle because it is the page almost everyone
-// lands on. The rest arrive on request.
-const LAZY = ROUTE_TABLE.map((r) => ({ path: r.path, Component: lazy(r.load) }));
+// lands on. The rest arrive on request, through the wrapper that has somewhere
+// to go when one of them does not.
+const LAZY = ROUTE_TABLE.map((r) => ({
+  path: r.path,
+  Component: lazy(() => loadChunk(r.load)),
+}));
 
 export default function App({ routes = LAZY }) {
   return (
@@ -35,14 +41,16 @@ export default function App({ routes = LAZY }) {
       <RouteChange />
       <Nav />
 
-      <Suspense fallback={<RouteFallback />}>
-        <Routes>
-          <Route path={ROUTES.home} element={<Home />} />
-          {routes.map(({ path, Component }) => (
-            <Route key={path} path={path} element={<Component />} />
-          ))}
-        </Routes>
-      </Suspense>
+      <RouteBoundary>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route path={ROUTES.home} element={<Home />} />
+            {routes.map(({ path, Component }) => (
+              <Route key={path} path={path} element={<Component />} />
+            ))}
+          </Routes>
+        </Suspense>
+      </RouteBoundary>
 
       <Footer>
         <SplitRail version={__BUILD_VERSION__} />
