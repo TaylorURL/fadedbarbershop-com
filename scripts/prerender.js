@@ -108,14 +108,38 @@ const liftPreloads = (body) => {
  * looks like it started.
  *
  * So the answer is the new document, which brings the current names down with
- * it: one reload per visit, on the flag the route chunks share and never give
- * back, so a build that has moved on stops rather than loops.
+ * it, on the flag the route chunks share so that a build that has moved on
+ * stops rather than loops.
+ *
+ * What that flag must not be is a single reload for the whole visit. Held for
+ * the life of the tab it is spent by the first dropped request and never seen
+ * again, so the second one - a later deploy, another thin moment on the same
+ * connection - finds nothing left to spend and the page stays dead. The reason
+ * it was never given back is real, and it is narrower than it looks: clearing
+ * it the moment the entry arrives is the loop, because the entry arrives on
+ * every pass and would wipe the flag a route's failure had just set.
+ *
+ * A load that is still standing some seconds later is the thing that has not
+ * happened in that story. Nothing that reloads can reach it - a document on its
+ * way out is gone long before - so returning the flag there cannot feed a loop,
+ * and it puts each reload behind a stretch of page that demonstrably worked.
+ *
+ * Once it is genuinely spent the page stops pretending. Every control on this
+ * document is inert without the bundle, and the reader is looking at a page
+ * that reads perfectly and answers nothing, so the last act is to say so and
+ * offer the reload by hand.
  */
+const STABLE_MS = 10000;
 const boot = (src) => `
       const flag = 'faded:chunk-reload';
       const start = async () => {
         try {
           await import(${JSON.stringify(src)});
+          // Standing, not merely arrived. A reload cannot reach this timer, so
+          // the budget comes back only after a stretch of page that worked.
+          setTimeout(() => {
+            try { sessionStorage.removeItem(flag); } catch (ignored) {}
+          }, ${STABLE_MS});
           return;
         } catch (ignored) { /* the bundle is not there to be had */ }
         // A browser that refuses storage cannot be asked whether it has already
@@ -126,7 +150,27 @@ const boot = (src) => `
           spent = sessionStorage.getItem(flag) === '1';
           sessionStorage.setItem(flag, '1');
         } catch (ignored) { /* spent stays true */ }
-        if (!spent) location.reload();
+        if (!spent) {
+          location.reload();
+          return;
+        }
+        stranded();
+      };
+      // No React here to catch anything: the bundle that would have drawn the
+      // boundary is the thing that did not arrive, so this is plain DOM.
+      const stranded = () => {
+        if (document.getElementById('stranded')) return;
+        const bar = document.createElement('div');
+        bar.id = 'stranded';
+        bar.setAttribute('role', 'status');
+        bar.innerHTML =
+          '<p>This page did not finish loading.</p>' +
+          '<button type="button">Load Again</button>';
+        bar.querySelector('button').addEventListener('click', () => {
+          try { sessionStorage.removeItem(flag); } catch (ignored) {}
+          location.reload();
+        });
+        document.body.appendChild(bar);
       };
       requestAnimationFrame(() => requestAnimationFrame(start));
     `;

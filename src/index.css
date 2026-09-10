@@ -208,6 +208,22 @@
     content-visibility: auto;
     contain-intrinsic-size: auto 900px;
   }
+
+  /* Raised only when the bundle never arrived and the reload that would have
+     fetched it is spent. Nothing that could draw this is running by then, so it
+     is styled here rather than in a component and the inlined sheet carries it
+     down with the document. */
+  #stranded {
+    @apply fixed inset-x-0 bottom-0 z-50 flex flex-col items-center justify-center gap-3 border-t border-bone-100/25 bg-pitch-900 px-6 py-4 text-center sm:flex-row sm:gap-5;
+  }
+
+  #stranded p {
+    @apply text-[13px] text-bone-100/75;
+  }
+
+  #stranded button {
+    @apply spec h-11 shrink-0 bg-bone-50 px-6 text-[11px] text-pitch-900;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
