@@ -48,7 +48,7 @@ const spend = () => {
 
 // Returns whether the page is on its way out, so a caller can hold rather than
 // hand back an error nobody will be there to read.
-export function reloadOnce() {
+function reloadOnce() {
   if (spent()) return false;
   spend();
   window.location.reload();
