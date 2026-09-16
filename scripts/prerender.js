@@ -45,17 +45,14 @@ const preloadFonts = ['big-shoulders-display-var', 'archivo-var']
 // fires a network error on every page load.  Patch each one with the largest
 // source from its srcset so every browser has a valid URL to fetch.
 const patchPreloadHrefs = (html) =>
-  html.replace(
-    /<link\s[^>]*rel="preload"[^>]*as="image"[^>]*>/gi,
-    (tag) => {
-      if (/\bhref\s*=/i.test(tag)) return tag;
-      const m = tag.match(/imageSrcSet="([^"]+)"/i);
-      if (!m) return tag;
-      const sources = m[1].split(',').map((s) => s.trim());
-      const last = sources[sources.length - 1].split(/\s+/)[0];
-      return tag.replace(/\/?>\s*$/, ` href="${last}"/>`);
-    },
-  );
+  html.replace(/<link\s[^>]*rel="preload"[^>]*as="image"[^>]*>/gi, (tag) => {
+    if (/\bhref\s*=/i.test(tag)) return tag;
+    const m = tag.match(/imageSrcSet="([^"]+)"/i);
+    if (!m) return tag;
+    const sources = m[1].split(',').map((s) => s.trim());
+    const last = sources[sources.length - 1].split(/\s+/)[0];
+    return tag.replace(/\/?>\s*$/, ` href="${last}"/>`);
+  });
 
 // Those same preloads are emitted into the body, because a string render has no
 // head to hoist them into, and there they are worth nothing: the parser reaches
@@ -226,8 +223,7 @@ const ROOT = /<div id="root">[\s\S]*(<\/div>\s*<\/body>)/;
 const intoRoot = (body, route) =>
   shell.replace(
     ROOT,
-    (_whole, tail) =>
-      `<div id="root"${route ? ` data-prerendered="${route}"` : ''}>${body}${tail}`,
+    (_whole, tail) => `<div id="root"${route ? ` data-prerendered="${route}"` : ''}>${body}${tail}`,
   );
 
 for (const route of Object.keys(META)) {

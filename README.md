@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2026.37.2-a8391f?style=for-the-badge" alt="Version 2026.37.2" />
+  <img src="https://img.shields.io/badge/version-2026.38.0-a8391f?style=for-the-badge" alt="Version 2026.38.0" />
   <img src="https://img.shields.io/badge/React-19-a8391f?style=for-the-badge&logo=react&logoColor=white" alt="React 19" />
   <img src="https://img.shields.io/badge/Vite-7-a8391f?style=for-the-badge&logo=vite&logoColor=white" alt="Vite 7" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-3-a8391f?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS 3" />
@@ -88,15 +88,15 @@ Hours, services, prices, phone number and booking URL all live in `src/app/const
 
 ### Scripts
 
-| Script                 | Does                                                             |
-| :--------------------- | :--------------------------------------------------------------- |
-| `npm run dev`          | Start the Vite dev server.                                       |
-| `npm run build`        | Production build to `dist`, prerendered route by route.          |
-| `npm run build:client` | The browser bundle alone, without the SSR pass or the prerender. |
-| `npm run preview`      | Serve the built output.                                          |
-| `npm run lint`         | Lint with ESLint.                                                |
-| `npm run format`       | Format `src/**` with Prettier.                                   |
-| `npm run format:check` | Check formatting without writing.                                |
+| Script                 | Does                                                    |
+| :--------------------- | :------------------------------------------------------ |
+| `npm run dev`          | Start the Vite dev server.                              |
+| `npm run build`        | Production build to `dist`, prerendered route by route. |
+| `npm run preview`      | Serve the built output.                                 |
+| `npm run lint`         | Lint with ESLint.                                       |
+| `npm run lint:fix`     | Lint and fix what ESLint can fix on its own.            |
+| `npm run format`       | Format the repo with Prettier.                          |
+| `npm run format:check` | Check formatting without writing.                       |
 
 ## How it works
 
@@ -107,6 +107,7 @@ Hours, services, prices, phone number and booking URL all live in `src/app/const
 - **The status is read in the shop's timezone.** `useTodayStatus` resolves the open, closed and walk-in state against `America/Chicago` rather than the visitor's clock, and re-reads it every thirty seconds.
 - **Type is served from this origin.** Archivo, Big Shoulders Display and Space Mono are woff2 files in `src/assets/fonts/`, each with a metric-matched local fallback so the swap does not reflow the line. The prerender reads the fingerprinted filenames back out of the build and writes the preloads for the two faces the first screen sets type in.
 - **Search and AI readers are served from source.** `index.html` carries `HairSalon` JSON-LD with the hours, address and offers; `public/` carries `robots.txt`, `sitemap.xml` and `llms.txt`.
+- **A route that does not arrive has somewhere to go.** Filenames under `/assets` carry a content hash, so a document held open across a deploy asks for chunks the origin no longer has. The first miss spends one reload, which brings the current names with it; a second puts `RouteBoundary` up with the address and the phone number on it, and a page that never ran at all gets the bar `scripts/prerender.js` inlines.
 - **Browser errors reach the shop's monitoring.** A small snippet in `index.html` reports uncaught errors, rejections, failed resource loads and 5xx responses, capped at ten per page so an error loop cannot flood.
 
 ## Project structure
@@ -126,11 +127,11 @@ fadedbarbershop-com/
 │   ├── app/
 │   │   ├── components/
 │   │   │   ├── effects/    FadeField, HairLayer, Grain, RazorPointer — the ambient layers App mounts once
-│   │   │   ├── layout/     Nav, MegaMenu, Dock, Footer, PageHead, and the two routing components
+│   │   │   ├── layout/     Nav, MegaMenu, Dock, Footer, PageHead, and the three routing components
 │   │   │   └── ui/         BookLink, Reveal, ShaveHeading, StatusPill, FadeSpecimen, socialIcons
 │   │   ├── constants/      shop.js for hours, services and contact; meta.js, reviews.js, gallery.js
 │   │   ├── hooks/          useTodayStatus for the live open state, useInView for the reveals
-│   │   ├── lib/            field.js, the state the shader reads each frame; hair.js, the strand model; gpu.js, the software-renderer check
+│   │   ├── lib/            field.js, the state the shader reads each frame; hair.js, the strand model; gpu.js, the software-renderer check; chunk.js, the one reload a route's missing code is worth
 │   │   ├── sections/       Hero, Rule, ServiceList, Gallery, ReviewWall, Figures, VisitBlock
 │   │   ├── views/          one file per route
 │   │   └── routeTable.js   one route list, wrapped in lazy() by the client and awaited by the server build
