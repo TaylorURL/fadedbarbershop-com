@@ -34,7 +34,7 @@ export default function MegaMenu({ open, setOpen }) {
 
   return (
     <div
-      className="hidden lg:block"
+      className="relative hidden lg:block"
       onPointerEnter={() => hold(true, OPEN_DELAY)}
       onPointerLeave={() => hold(false, CLOSE_DELAY)}
     >
@@ -62,6 +62,10 @@ export default function MegaMenu({ open, setOpen }) {
           }`}
         />
       </button>
+
+      {/* The panel sits at the foot of the header, well below the trigger; this
+          carries the hover across that gap so the pointer never leaves it. */}
+      {open ? <span aria-hidden="true" className="absolute inset-x-0 top-full h-8" /> : null}
 
       {mounted
         ? createPortal(
