@@ -8,7 +8,7 @@
 <p align="center"><a href="https://faded-barbershop.com">faded-barbershop.com</a></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2026.41.0-a8391f?style=for-the-badge" alt="Version 2026.41.0" />
+  <img src="https://img.shields.io/badge/version-2026.44.0-a8391f?style=for-the-badge" alt="Version 2026.44.0" />
 </p>
 
 Faded has been cutting hair on Main Street in Liberty since 2018: fades, beard work, straight razor shaves and kids' cuts. Appointments are booked on TheCut and Friday is walk-in day. The whole page is a WebGL field of hair that gets shorter as you scroll, long at the top and down to skin at the bottom, and your cursor shaves a path through it.
