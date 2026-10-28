@@ -6,7 +6,7 @@ Website for Faded Barber Shop, a barber shop on Main Street in Liberty, Texas.
 
 [faded-barbershop.com](https://faded-barbershop.com)
 
-<img src="https://img.shields.io/badge/version-2026.44.1-a8391f?style=for-the-badge" alt="Version 2026.44.1" />
+<img src="https://img.shields.io/badge/version-2026.44.2-a8391f?style=for-the-badge" alt="Version 2026.44.2" />
 
 Services, hours, reviews, directions and a booking link to TheCut. The page is a WebGL field of hair that gets shorter as you scroll, long at the top and down to skin at the bottom. The cursor shaves a path through it and the cut hair falls.
 
