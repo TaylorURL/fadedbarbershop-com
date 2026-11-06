@@ -94,19 +94,36 @@ const liftPreloads = (body) => {
  * then keeps the markup it was served and quietly never wakes up - it reads
  * fine and every menu, dial and booking link on it is dead.
  *
- * Asking a second time is not worth the request, and asking under a query is
- * worse. A module that failed to fetch is recorded as failed in the module map
- * and every later import of that name is answered from there without touching
- * the network, and the preload above has usually failed first, so the import
- * never reaches the wire at all. A query the static host ignores does reach it,
- * being a name the map has not seen - and it buys a second copy of the entry
- * rather than the one every route chunk statically imports, so the routes go on
- * asking for the name that is missing and fail one at a time behind a page that
- * looks like it started.
+ * Importing a second time is not worth the request, and importing under a query
+ * is worse. A module that failed to fetch is recorded as failed in the module
+ * map and every later import of that name is answered from there without
+ * touching the network, and the preload above has usually failed first, so the
+ * import never reaches the wire at all. A query the static host ignores does
+ * reach it, being a name the map has not seen - and it buys a second copy of
+ * the entry rather than the one every route chunk statically imports, so the
+ * routes go on asking for the name that is missing and fail one at a time
+ * behind a page that looks like it started.
  *
  * So the answer is the new document, which brings the current names down with
  * it, on the flag the route chunks share so that a build that has moved on
  * stops rather than loops.
+ *
+ * What the document owes the reader before it spends that reload is a second
+ * ask. The name in a failure report is, more often than not, the name this
+ * build wrote: the file was there and the request did not arrive, which is one
+ * thin moment on a phone and not a deploy at all. The import cannot be the
+ * thing that asks again, for the reason above, but a plain request for the same
+ * URL can - the module map does not govern it, it reaches the wire every time,
+ * and when it answers the bytes are in the HTTP cache for the next document's
+ * entry to find. Three asks across about a second, and the reload is spent only
+ * once the network has refused all of them. Without that, a single dropped
+ * request costs the whole budget, and the next drop - the same thin connection,
+ * moments later - finds nothing left and strands a reader in front of a page
+ * that reads perfectly and answers nothing.
+ *
+ * It asks over XMLHttpRequest rather than fetch because the reporter in the
+ * shell wraps fetch and reports what it rejects, and a retry that is doing its
+ * job is not something to report.
  *
  * What that flag must not be is a single reload for the whole visit. Held for
  * the life of the tab it is spent by the first dropped request and never seen
@@ -127,8 +144,36 @@ const liftPreloads = (body) => {
  * offer the reload by hand.
  */
 const STABLE_MS = 10000;
+const ASKS = 3;
+const BACKOFF_MS = 300;
 const boot = (src) => `
       const flag = 'faded:chunk-reload';
+      const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+      const ask = () =>
+        new Promise((done) => {
+          try {
+            const req = new XMLHttpRequest();
+            req.open('GET', ${JSON.stringify(src)});
+            req.timeout = 8000;
+            req.onload = () => done(req.status >= 200 && req.status < 400);
+            req.onerror = () => done(false);
+            req.onabort = () => done(false);
+            req.ontimeout = () => done(false);
+            req.send();
+          } catch (ignored) {
+            done(false);
+          }
+        });
+      // Returns when the bytes are had or when the network has refused every
+      // ask. Either way the document is replaced next, so there is nothing to
+      // hand back: what this buys is the chance that the reload has something
+      // to load, and that the reload was not spent on one dropped request.
+      const warm = async () => {
+        for (let i = 0; i < ${ASKS}; i += 1) {
+          if (i) await wait(i * ${BACKOFF_MS});
+          if (await ask()) return;
+        }
+      };
       const start = async () => {
         try {
           await import(${JSON.stringify(src)});
@@ -139,6 +184,8 @@ const boot = (src) => `
           }, ${STABLE_MS});
           return;
         } catch (ignored) { /* the bundle is not there to be had */ }
+        // Asked again on the wire before the one reload is spent on it.
+        await warm();
         // A browser that refuses storage cannot be asked whether it has already
         // reloaded, and a reload nothing remembers repeats forever, so an
         // unreadable flag reads as spent.
