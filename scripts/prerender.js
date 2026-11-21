@@ -177,6 +177,10 @@ const boot = (src) => `
       const start = async () => {
         try {
           await import(${JSON.stringify(src)});
+          // The preload may well have failed on the way here, and the shell is
+          // holding that failure back until it knows what it cost. The bundle
+          // is running, so it cost nothing worth telling anyone about.
+          try { window.__reporter.recovered(); } catch (ignored) {}
           // Standing, not merely arrived. A reload cannot reach this timer, so
           // the budget comes back only after a stretch of page that worked.
           setTimeout(() => {
@@ -184,6 +188,9 @@ const boot = (src) => `
           }, ${STABLE_MS});
           return;
         } catch (ignored) { /* the bundle is not there to be had */ }
+        // From here this script owns the outcome, so the shell stops waiting on
+        // a clock and waits on the answer below.
+        try { window.__reporter.recovering(); } catch (ignored) {}
         // Asked again on the wire before the one reload is spent on it.
         await warm();
         // A browser that refuses storage cannot be asked whether it has already
@@ -204,6 +211,9 @@ const boot = (src) => `
       // boundary is the thing that did not arrive, so this is plain DOM.
       const stranded = () => {
         if (document.getElementById('stranded')) return;
+        // Now it is worth reporting: the import, three asks on the wire and the
+        // page's one reload are all spent and the bundle never arrived.
+        try { window.__reporter.stranded(); } catch (ignored) {}
         const bar = document.createElement('div');
         bar.id = 'stranded';
         bar.setAttribute('role', 'status');
