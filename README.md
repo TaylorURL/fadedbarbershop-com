@@ -6,7 +6,7 @@ Website for Faded Barber Shop, a barber shop on Main Street in Liberty, Texas.
 
 [faded-barbershop.com](https://faded-barbershop.com)
 
-<img src="https://img.shields.io/badge/version-2026.47.0-a8391f?style=for-the-badge" alt="Version 2026.47.0" />
+<img src="https://img.shields.io/badge/version-2026.47.1-a8391f?style=for-the-badge" alt="Version 2026.47.1" />
 
 Services, hours, reviews, directions and a booking link to TheCut. The page is a WebGL field of hair that gets shorter as you scroll, long at the top and down to skin at the bottom. The cursor shaves a path through it and the cut hair falls.
 
@@ -21,10 +21,11 @@ The hair that falls is Canvas 2D, in `HairLayer.jsx`. It uses the same strand mo
 ## Things that bit me
 
 - Software WebGL (SwiftShader, llvmpipe, Apple's fallback) runs the shader on the main thread. `src/app/lib/gpu.js` checks once with a one-pixel context and gives those machines the flat background, with the hair held still like under reduced motion.
-- The browser caches a failed module import and answers every retry from that cache, so retrying a chunk in place never works. `src/app/lib/chunk.js` reloads the page once per visit instead, and doesn't hand that reload back, because that's how you get a loop.
+- A module that fails to fetch is marked failed in the document's module map, and every later import of that name is answered from there without touching the network. So importing again buys nothing. A plain request for the same URL does reach the wire, so the boot script `scripts/prerender.js` writes asks for the entry three more times that way before the page spends anything. A route chunk goes straight to the reload, in `src/app/lib/chunk.js`.
+- The reload is one flag in sessionStorage, and the new document brings the current chunk names down with it. Clearing the flag when the bundle arrives is the loop, because the bundle arrives on every pass. It clears ten seconds into a page that's still standing instead, so a second dropped request later in the visit still has a reload to spend. Once it's genuinely spent the page says so and puts the reload behind a button.
 - Open or closed is worked out in the shop's time zone, not the visitor's.
 
-Hours, services, phone, the booking link and fee are all in `src/app/constants/shop.js`. Every route is prerendered from one route table, with the SSR build awaiting the lazy loaders so the HTML holds the real page.
+Hours, services, phone, the booking link and fee are all in `src/app/constants/shop.js`. Every route is prerendered from one route table, with the SSR build awaiting the lazy loaders so the HTML holds the real page. The prerender also takes out the entry's script tag and asks for the bundle a frame after the first paint, because a finished document owes it nothing. The stylesheet is inlined rather than linked, since it's smaller than the round trip that would fetch it.
 
 ```bash
 npm install
