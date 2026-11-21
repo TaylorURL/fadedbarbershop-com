@@ -191,14 +191,74 @@
           if (held.length < 50)
             held.push({ kind: kind, message: String(message), stack: String(stack || '') });
         }
+        // A failure the document goes on to recover from is not news, and this
+        // document recovers from one in particular: the entry bundle is asked
+        // for early as a module preload, imported a frame later, asked for
+        // again on the wire, and finally fetched by a fresh document, so the
+        // preload's error event fires long before anyone knows whether the
+        // reader ended up on a working page. Reported there it says a visitor
+        // lost the site when usually a visitor lost one request and never
+        // noticed, and the two read identically afterwards. So that one failure
+        // waits here until the boot script says how it ended: dropped when the
+        // bundle runs, sent when the page has run out of ways to get it. A page
+        // that replaces itself to recover takes the waiting report with it,
+        // which is the same answer. Nothing calling back at all means the boot
+        // script never ran, and the window below sends it unqualified rather
+        // than losing it.
+        var pending = [];
+        var settled = false;
+        var PENDING_MS = 30000;
+        function pend(kind, message) {
+          hold(kind, message);
+          if (settled) return;
+          var item = { kind: kind, message: message };
+          item.timer = setTimeout(function () {
+            flushPending('and the page never said whether it recovered');
+          }, PENDING_MS);
+          pending.push(item);
+        }
+        function flushPending(suffix) {
+          var items = pending;
+          pending = [];
+          for (var i = 0; i < items.length; i += 1) {
+            clearTimeout(items[i].timer);
+            emit(items[i].kind, items[i].message + ' ' + suffix);
+          }
+          return items.length;
+        }
         window.__reporter = {
           held: held,
           replay: function () {
             return held.slice();
           },
+          // The boot script has the failure in hand and is working through its
+          // own ways back to the bundle, so it is the thing that will say how
+          // this ended. The window above covers a boot script that never ran,
+          // and it is no longer what is happening here: dropping it keeps a
+          // thirty-second timer from racing a recovery that takes longer.
+          recovering: function () {
+            for (var i = 0; i < pending.length; i += 1) clearTimeout(pending[i].timer);
+          },
+          // The bundle is running, so whatever the preload did cost nobody anything.
+          recovered: function () {
+            settled = true;
+            for (var i = 0; i < pending.length; i += 1) clearTimeout(pending[i].timer);
+            pending = [];
+          },
+          // Every way back to the bundle is spent and the reader is in front of
+          // a page that reads perfectly and answers nothing. That is the report
+          // this fault is worth, and it says so in its own words.
+          stranded: function () {
+            if (!flushPending('and the page could not recover')) {
+              report('resource', 'The page could not load its scripts and did not recover');
+            }
+          },
         };
         function report(kind, message, stack) {
           hold(kind, message, stack);
+          emit(kind, message, stack);
+        }
+        function emit(kind, message, stack) {
           if (sent >= 10) return; // a page stuck in an error loop stops at ten
           if (extensionOnly(stack)) return;
           sent += 1;
@@ -239,13 +299,19 @@
           function (event) {
             try {
               if (event.target && event.target !== window && event.target.tagName) {
-                report(
-                  'resource',
-                  'Failed to load ' +
-                    event.target.tagName.toLowerCase() +
-                    ': ' +
-                    (event.target.src || event.target.href || ''),
-                );
+                var tag = event.target.tagName.toLowerCase();
+                var where = event.target.src || event.target.href || '';
+                var preloads =
+                  tag === 'link' &&
+                  String(event.target.rel || '')
+                    .toLowerCase()
+                    .indexOf('modulepreload') > -1;
+                var message = 'Failed to load ' + tag + ': ' + where;
+                if (preloads) {
+                  pend('resource', message);
+                } else {
+                  report('resource', message);
+                }
               } else {
                 report('uncaught', event.message, event.error && event.error.stack);
               }
